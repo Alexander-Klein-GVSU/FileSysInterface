@@ -24,7 +24,6 @@ else:
 
 # Gets user directory.
 home = expanduser("~")
-home = "C:/Users/The Dragon Of Light/Desktop/"
 
 # Creates changelog file.
 if exists("changelog.txt"):
