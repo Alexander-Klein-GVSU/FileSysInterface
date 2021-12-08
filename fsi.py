@@ -9,20 +9,27 @@ from stat import *
 # Assignment: File System Interface
 
 # Opens text file and separates data.
-oldFile = open("files.txt", "r+")
-ofText = oldFile.read()
-oldFile.close()
-oldDataT = ofText.splitlines()
-oldData = {}
-for i in range(len(oldDataT)):
-    oldDataT[i] = oldDataT[i].split("#")
-    oldData[oldDataT[i][0]] = [oldDataT[i][1], oldDataT[i][2]]
-print(oldData)
+if exists("files.txt"):
+    oldFile = open("files.txt", "r")
+    ofText = oldFile.read()
+    oldFile.close()
+    oldDataT = ofText.splitlines()
+    oldData = {}
+    for i in range(len(oldDataT)):
+        oldDataT[i] = oldDataT[i].split("#")
+        oldData[oldDataT[i][0]] = [oldDataT[i][1], oldDataT[i][2]]
+else:
+    oldData = {}
 
 
 # Gets user directory.
 home = expanduser("~")
 home = "C:/Users/The Dragon Of Light/Desktop/"
+
+# Creates changelog file.
+if exists("changelog.txt"):
+    os.remove("changelog.txt")
+changelog = open("changelog.txt", "w+")
 
 # Recursively searches through files in directory.
 def seek(filepath):
@@ -49,18 +56,20 @@ def seek(filepath):
             strFile = str(file)
             if strFile in oldData:
                 if (size != oldData[strFile][1]):
-                    print("Size changed from " + str(oldData[strFile][1]) + " bytes to " + size + " bytes for file: " + strFile)
+                    changelog.write("Size changed from " + str(oldData[strFile][1]) + " bytes to " + size + " bytes for file: " + strFile + "\n")
                     oldData[strFile][1] = size
                 if (accesses != oldData[strFile][0]):
-                    print("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile)
+                    changelog.write("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile + "\n")
                     oldData[strFile][0] = accesses
             else:
-                print(strFile + "has been created with permissions: " + accesses + "    and size: " + size)
+                changelog.write(strFile + "has been created with permissions: " + accesses + "    and size: " + size + "\n")
                 oldData[strFile] = [accesses, size]
 
 
 seek(home)
-os.remove("files.txt")
+changelog.close()
+if exists("files.txt"):
+    os.remove("files.txt")
 newFile = open("files.txt", "w")
 for fileName in oldData:
     newFile.write(fileName)
