@@ -9,17 +9,20 @@ from stat import *
 # Assignment: File System Interface
 
 # Opens text file and separates data.
-oldFile = open("files.txt", "a+")
+oldFile = open("files.txt", "r+")
 ofText = oldFile.read()
 oldFile.close()
-oldData = ofText.splitlines()
-for i in range(len(oldData)):
-    oldData[i] = oldData[i].split("#")
+oldDataT = ofText.splitlines()
+oldData = {}
+for i in range(len(oldDataT)):
+    oldDataT[i] = oldDataT[i].split("#")
+    oldData[oldDataT[i][0]] = [oldDataT[i][1], oldDataT[i][2]]
 print(oldData)
 
 
 # Gets user directory.
 home = expanduser("~")
+home = "C:/Users/The Dragon Of Light/Desktop/"
 
 # Recursively searches through files in directory.
 def seek(filepath):
@@ -27,11 +30,10 @@ def seek(filepath):
         if (os.path.isdir(file)):
             seek(file)
         else:
-            
             if (not(exists(file))):
                 print(str(file) + "does not exist anymore")
                 if str(file) in oldData:
-                    oldData.remove(str(file))
+                    oldData.pop(str(file))
                 continue
             accesses = ""
             if (not(os.access(file, os.R_OK)) and not(os.access(file, os.W_OK)) and not(os.access(file, os.X_OK))):
@@ -46,23 +48,25 @@ def seek(filepath):
             size = str(os.lstat(file).st_size)
             strFile = str(file)
             if strFile in oldData:
-                if (size != oldData[oldData.index(strFile)][2]):
-                    print("Size changed from " + str(oldData[oldData.index(strFile)][2]) + " bytes to " + size + " bytes for file: " + strFile)
-                    oldData[oldData.index(strFile)][2] = size
-                if (accesses == oldData[oldData.index(strFile)][1]):
-                    print("Permissions changed from " + str(oldData[oldData.index(strFile)][1]) + " to " + accesses + " for file: " + strFile)
-                    oldData[oldData.index(strFile)][1] = accesses
+                if (size != oldData[strFile][1]):
+                    print("Size changed from " + str(oldData[strFile][1]) + " bytes to " + size + " bytes for file: " + strFile)
+                    oldData[strFile][1] = size
+                if (accesses != oldData[strFile][0]):
+                    print("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile)
+                    oldData[strFile][0] = accesses
             else:
                 print(strFile + "has been created with permissions: " + accesses + "    and size: " + size)
-                oldData.append([strFile, accesses, size])
+                oldData[strFile] = [accesses, size]
 
 
 seek(home)
 os.remove("files.txt")
 newFile = open("files.txt", "w")
-for i in range(len(oldData)):
-    for j in range(len(oldData[i])):
-        newFile.write(oldData[i][j])
+for fileName in oldData:
+    newFile.write(fileName)
+    newFile.write("#")
+    for j in range(len(oldData[fileName])):
+        newFile.write(oldData[fileName][j])
         newFile.write("#")
     newFile.write("\n")
 newFile.close()
