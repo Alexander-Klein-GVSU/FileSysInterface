@@ -37,13 +37,13 @@ def seek(filepath):
         if (os.path.isdir(file)):
             seek(file)
         else:
-            # If file doesnt exist, removes it from the dict.
+            # If pulled file doesnt exist, removes it from the dict.
             if (not(exists(file))):
-                changelog.write(str(file) + "does not exist anymore.\n")
+                changelog.write(str(file) + " does not exist anymore.\n")
                 if str(file) in oldData:
                     oldData.pop(str(file))
                 continue
-            
+
             # Gets permissions from file.
             accesses = ""
             if (not(os.access(file, os.R_OK)) and not(os.access(file, os.W_OK)) and not(os.access(file, os.X_OK))):
@@ -75,8 +75,21 @@ def seek(filepath):
                 changelog.write(strFile + " has been created with    permissions: " + accesses + "    and size: " + size + ".\n")
                 oldData[strFile] = [accesses, size]
 
+# Checks for files deleted from the pc.
+def checkDeleted():
+    for file in oldData:
+        # If file has been deleted.
+        if (not(exists(file))):
+            changelog.write(str(file) + " has been deleted.\n")
+            oldData.pop(str(file))
+            checkDeleted()
+            break
+
 # Runs the recursive function.
 seek(home)
+
+# Runs deletion checker.
+checkDeleted()
 
 # Closes the changelog file.
 changelog.close()
