@@ -62,7 +62,7 @@ def seek(filepath):
                     changelog.write("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile + "\n")
                     oldData[strFile][0] = accesses
             else:
-                changelog.write(strFile + "has been created with permissions: " + accesses + "    and size: " + size + "\n")
+                changelog.write(strFile + " has been created with    permissions: " + accesses + "    and size: " + size + "\n")
                 oldData[strFile] = [accesses, size]
 
 
