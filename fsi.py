@@ -34,14 +34,18 @@ changelog = open("changelog.txt", "w+")
 # Recursively searches through files in directory.
 def seek(filepath):
     for file in glob.iglob(f'{filepath}/*'):
+        # Runs function recursively if file is a directory.
         if (os.path.isdir(file)):
             seek(file)
         else:
+            # If file doesnt exist, removes it from the dict.
             if (not(exists(file))):
-                print(str(file) + "does not exist anymore")
+                changelog.write(str(file) + "does not exist anymore.\n")
                 if str(file) in oldData:
                     oldData.pop(str(file))
                 continue
+            
+            # Gets permissions from file.
             accesses = ""
             if (not(os.access(file, os.R_OK)) and not(os.access(file, os.W_OK)) and not(os.access(file, os.X_OK))):
                 accesses += "N/A"
@@ -52,22 +56,33 @@ def seek(filepath):
                     accesses += "w"
                 if (os.access(file, os.X_OK)):
                     accesses += "e"
+
+            # Gets size of file.
             size = str(os.lstat(file).st_size)
+
+            # Converts filename to string
             strFile = str(file)
+
+            # If the file existed in the previous startup, checks if file size and/or permissions have changed and updates changelog if so.
             if strFile in oldData:
                 if (size != oldData[strFile][1]):
-                    changelog.write("Size changed from " + str(oldData[strFile][1]) + " bytes to " + size + " bytes for file: " + strFile + "\n")
+                    changelog.write("Size changed from " + str(oldData[strFile][1]) + " bytes to " + size + " bytes for file: " + strFile + ".\n")
                     oldData[strFile][1] = size
                 if (accesses != oldData[strFile][0]):
-                    changelog.write("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile + "\n")
+                    changelog.write("Permissions changed from " + str(oldData[strFile][0]) + " to " + accesses + " for file: " + strFile + ".\n")
                     oldData[strFile][0] = accesses
             else:
-                changelog.write(strFile + " has been created with    permissions: " + accesses + "    and size: " + size + "\n")
+                # If the file did not exist in the previous startup, adds it to the list and updates the changelog.
+                changelog.write(strFile + " has been created with    permissions: " + accesses + "    and size: " + size + ".\n")
                 oldData[strFile] = [accesses, size]
 
-
+# Runs the recursive function.
 seek(home)
+
+# Closes the changelog file.
 changelog.close()
+
+# Updates the files text file.
 if exists("files.txt"):
     os.remove("files.txt")
 newFile = open("files.txt", "w")
